@@ -13,14 +13,10 @@ class Bullet2(Sprite):
         #initialize the settings from the game.
         self.settings=game.settings
         #set the color of the bullet from the settings.
-        self.color=self.settings.bullet_color
+        self.color=self.settings.alien_bullet_color
         #create the bullet from scratch at (0,0).
         self.rect=pygame.Rect(0,0,self.settings.bullet_width,
             self.settings.bullet_height)
-        #set the position of the bullet 
-        #which will depend on the position of the ship. 
-        for alien in self.game.aliens.sprites():
-            self.rect.midbottom=alien.rect.midbottom
         #store the bullet's position as a decimal to ba able to
         #make a fine adjustment of the speed of the bullet.
         self.y=float(self.rect.y)
@@ -29,8 +25,6 @@ class Bullet2(Sprite):
         """update the position of the bullet"""
         #update the decimal position of the bullet.
         self.y += self.settings.bullet_speed
-        #for alien in self.game.aliens.sprites():
-            #self.rect.midbottom=alien.rect.midbottom
         #update the rect value of the bullet.
         self.rect.y = self.y
 

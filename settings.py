@@ -13,8 +13,12 @@ class Settings:
         self.bullet_width=3
         self.bullet_height=15
         self.bullet_color=(60,60,60)
+        self.alien_bullet_color=(255,0,0)
         #alien settings
         self.fleet_drop_speed=10
+        self.bullet_frequency=0.0003
+        #shield settings
+        self.shields_limit=3
         # How quickly the game speeds up.
         self.speedup_scale=1.2
         #How quickly the alien points increase during the game.
@@ -32,6 +36,7 @@ class Settings:
         self.alien_points=50
         #the direction 1 represent right and the direction -1 represent left.
         self.fleet_direction=1
+       
 
     def increase_speed(self):
         """Increase speed settings and alien point values."""

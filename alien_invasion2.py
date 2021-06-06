@@ -10,6 +10,8 @@ from bullet2 import Bullet2
 from bullet import Bullet
 from alien import Alien
 from button import Button
+from random import random
+from shield import Shield
 
 #let's make a class of the game
 class AlienInvasion:
@@ -40,6 +42,8 @@ class AlienInvasion:
         #make the play button.
         self.play_button=Button(self,"Play")
         self.num=0
+        self.shields=pygame.sprite.Group()
+        self._create_shields()
 
 
     def run_game(self):
@@ -49,6 +53,7 @@ class AlienInvasion:
             if self.stats.game_active:
                 self.ship.update()
                 self._update_bullets()
+                self._update_shields()
                 self._update_aliens()
             self._update_screen()
 
@@ -93,6 +98,7 @@ class AlienInvasion:
         pygame.mouse.set_visible(False)
         #reset the speed of the game.
         self.settings.initialize_dynamic_settings()
+        self._create_shields()
 
     def _check_keydown_events(self,event):
         """respond to the keys pressed by the user"""
@@ -145,9 +151,7 @@ class AlienInvasion:
         #Remove any bullets and aliens that have collided.
         collisions=pygame.sprite.groupcollide(
             self.bullets,self.aliens,True,True)
-        collisions2=pygame.sprite.spritecollideany(self.ship,self.bullets2)
-        if collisions2:
-            self._ship_hit()
+        
         if not self.aliens.sprites():
             #when the user destroies all the aliens 
             #delete the existing bullets and make a new fleet of aliens.
@@ -155,15 +159,10 @@ class AlienInvasion:
             self._create_fleet()
             self.settings.increase_speed()
             self.num+=1
-            
 
 
     def _fire_bullet(self):
         """add a new bullet to the group of fired bullets"""
-        new_bullet=Bullet2(self)
-        #add a new instance to the group of bullets 
-        #unless the group already reached the limit of allowed bullets.
-        self.bullets2.add(new_bullet)
         if len(self.bullets) < self.settings.bullet_limit:
             new_bullet=Bullet(self)
             #add a new instance to the group of bullets 
@@ -209,6 +208,19 @@ class AlienInvasion:
         #add the alien to the fleet.
         self.aliens.add(alien)
 
+    def _update_shields(self):
+        """update the number of shields"""
+        collisions2=pygame.sprite.spritecollideany(self.ship,self.bullets2)
+        if collisions2:
+            for bullet in self.bullets2.copy():
+                self.bullets2.remove(bullet)
+                break
+            for shield in self.shields.copy():
+                self.shields.remove(shield)
+                break
+        if not self.shields.sprites():
+            self._ship_hit()
+
 
     def _update_aliens(self):
         """update the positions of the fleet of aliens 
@@ -224,13 +236,14 @@ class AlienInvasion:
     def _check_fleet_edges(self):
         """check to see if the fleet hits the edge of the screen"""
         for alien in self.aliens.sprites():
+            if random() < self.settings.bullet_frequency:
+                
+                new_bullet=Bullet2(self)
+                self.bullets2.add(new_bullet)
+                new_bullet.rect.x=alien.rect.x
+                new_bullet.y=alien.rect.y
             if alien.check_edges():
                 self._change_fleet_direction()
-                for alien in self.aliens.sprites():
-                    new_bullet=Bullet2(self)
-                    #add a new instance to the group of bullets 
-                    #unless the group already reached the limit of allowed bullets.
-                    self.bullets2.add(new_bullet)
                 break
 
     def _change_fleet_direction(self):
@@ -251,6 +264,7 @@ class AlienInvasion:
             self.ship.center_ship()
             #create a new fleet of aliens.
             self._create_fleet()
+            self._create_shields()
             #pause.
             sleep(0.5)
         else:
@@ -268,6 +282,16 @@ class AlienInvasion:
                 self._ship_hit()
                 break
 
+    def _create_shields(self):
+        """create shields"""
+        for shield_number in range(self.settings.shields_limit):
+            shield=Shield(self)
+            shield.rect.y+=10
+            shield.rect.left=self.settings.screen_width-60 - (
+                shield_number*shield.rect.width)
+            self.shields.add(shield)
+
+
     def _update_screen(self):
         """update the images on the screen and flip to the new screen"""
         #fill the surface of the screen with the background color.
@@ -284,7 +308,7 @@ class AlienInvasion:
         #draw the play button when the game is inactive.
         if not self.stats.game_active:
             self.play_button.draw_button()
-
+        self.shields.draw(self.screen)
         #draw to the screen the last made screen.
         pygame.display.flip()
 
