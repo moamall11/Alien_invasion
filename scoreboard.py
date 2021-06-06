@@ -1,6 +1,7 @@
 import pygame.font
 from pygame.sprite import Group
 from ship import Ship
+import pygame
 
 class Scoreboard:
     """the scoreboard of the game"""
@@ -14,8 +15,10 @@ class Scoreboard:
         #properties.
         self.font=pygame.font.SysFont(None,48)
         self.text_color=(50,50,50)
-
+        self.high_score_sound=pygame.mixer.Sound("sounds/high_score.ogg")
+        self.high_score_sound1=True
         self.prep_images()
+        
 
     def prep_images(self):
         """prepare images"""
@@ -55,6 +58,9 @@ class Scoreboard:
         if self.stats.score > self.stats.high_score:
             self.stats.high_score=self.stats.score
             self.prep_high_score()
+            if self.high_score_sound1:
+                self.high_score_sound.play()
+                self.high_score_sound1=False
 
     def prep_level(self):
         """prepare the level number"""

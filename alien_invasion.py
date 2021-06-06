@@ -48,8 +48,12 @@ class AlienInvasion:
         self.level2=Button2(self,"Medium")
         self.level3=Button3(self,"Hard")
         self.scoreboard=Scoreboard(self)
+        pygame.mixer.music.load("sounds/music.ogg")
+        self.fire=pygame.mixer.Sound("sounds/fire.wav")
+        self.explosion=pygame.mixer.Sound("sounds/explosion.ogg")
+        self.new_level=pygame.mixer.Sound("sounds/new_level.ogg")
+        self.game_over=pygame.mixer.Sound("sounds/game_over.wav")
         
-     
 
     def run_game(self):
         """the main loop of the game"""
@@ -60,6 +64,8 @@ class AlienInvasion:
                 self.ship.update()
                 self._update_bullets()
                 self._update_aliens()
+            else:
+                pygame.mixer.music.stop()
             self._update_screen()
 
 
@@ -148,6 +154,7 @@ class AlienInvasion:
         #reset the speed of the game.
         self.settings.initialize_dynamic_settings()
         self.scoreboard.prep_images()
+        pygame.mixer.music.play(-1)
 
     def _close_game(self):
         """save the high score and exit the game"""
@@ -207,6 +214,7 @@ class AlienInvasion:
             self.bullets,self.aliens,True,True)
         for aliens in collisions.values():
             self.stats.score+=self.settings.alien_points * len(aliens)
+            self.explosion.play()
             self.scoreboard.prep_score()
             self.scoreboard.check_high_score()
         if not self.aliens.sprites():
@@ -222,6 +230,7 @@ class AlienInvasion:
         #increase level.
         self.stats.level+=1
         self.scoreboard.prep_level()
+        self.new_level.play()
 
     def _fire_bullet(self):
         """add a new bullet to the group of fired bullets"""
@@ -230,6 +239,7 @@ class AlienInvasion:
             #add a new instance to the group of bullets 
             #unless the group already reached the limit of allowed bullets.
             self.bullets.add(new_bullet)
+            self.fire.play()
 
     def _create_fleet(self):
         """create a fleet of aliens"""
@@ -313,6 +323,7 @@ class AlienInvasion:
             sleep(0.5)
         else:
             self.stats.game_active=False
+            self.game_over.play()
             #show the mouse curser.
             pygame.mouse.set_visible(True)
 
